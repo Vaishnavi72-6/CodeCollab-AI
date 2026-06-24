@@ -1,19 +1,16 @@
 from fastapi import FastAPI
 
+from app.database import Base, engine
+from app.models.user import User
+
+Base.metadata.create_all(bind=engine)
+
 app = FastAPI(
-    title="CodeCollab AI",
-    description="Real-Time Collaborative Code Editor Backend",
-    version="1.0.0"
+    title="CodeCollab AI"
 )
 
 @app.get("/")
 def root():
     return {
-        "message": "Welcome to CodeCollab AI Backend"
-    }
-
-@app.get("/health")
-def health():
-    return {
-        "status": "healthy"
+        "message": "CodeCollab AI Backend Running"
     }
