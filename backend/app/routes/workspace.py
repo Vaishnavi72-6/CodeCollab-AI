@@ -33,3 +33,14 @@ def create_workspace(
         "message": "Workspace created successfully",
         "workspace_id": new_workspace.id
     }
+@router.get("/all")
+def get_all_workspaces(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+
+    workspaces = db.query(Workspace).filter(
+        Workspace.owner_id == current_user.id
+    ).all()
+
+    return workspaces
