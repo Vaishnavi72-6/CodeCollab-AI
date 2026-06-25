@@ -63,3 +63,32 @@ def get_workspace(
         )
 
     return workspace
+@router.put("/update/{workspace_id}")
+def update_workspace(
+    workspace_id: str,
+    workspace: WorkspaceCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+
+    db_workspace = db.query(Workspace).filter(
+        Workspace.id == workspace_id,
+        Workspace.owner_id == current_user.id
+    ).first()
+
+    if not db_workspace:
+        raise HTTPException(
+            status_code=404,
+            detail="Workspace not found"
+        )
+
+    db_workspace.name = workspace.name
+    db_workspace.description = workspace.description
+
+    db.commit()
+    db.refresh(db_workspace)
+
+    return {
+        "message": "Workspace updated successfully",
+        "workspace": db_workspace
+    }
