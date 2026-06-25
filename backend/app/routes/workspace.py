@@ -6,7 +6,7 @@ from app.models.workspace import Workspace
 from app.schemas.workspace_schema import WorkspaceCreate
 from app.dependencies.auth import get_current_user
 from app.models.user import User
-
+from fastapi import HTTPException
 router = APIRouter(
     prefix="/workspace",
     tags=["Workspace"]
@@ -44,3 +44,22 @@ def get_all_workspaces(
     ).all()
 
     return workspaces
+@router.get("/{workspace_id}")
+def get_workspace(
+    workspace_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+
+    workspace = db.query(Workspace).filter(
+        Workspace.id == workspace_id,
+        Workspace.owner_id == current_user.id
+    ).first()
+
+    if not workspace:
+        raise HTTPException(
+            status_code=404,
+            detail="Workspace not found"
+        )
+
+    return workspace
